@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#193347">
+<meta name="description" content="DoceFluxo Plano B: simulador demonstrativo de priorização da produção de doces em cenário de capacidade reduzida.">
+<title>DoceFluxo | Plano B da Produção</title>
+<style>
+:root{--ink:#193347;--muted:#607381;--teal:#127c73;--cream:#fff5e8;--line:#dce6e9;--bg:#f3f7f6;--gold:#b9792a;--soft:#f5faf8;--red:#b34843}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #eab55b;outline-offset:2px}a{color:var(--teal)}.shell{max-width:1220px;margin:auto;padding:28px 24px 55px}header{background:var(--ink);color:white}.head{max-width:1220px;margin:auto;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:20px}.brand{font-size:21px;font-weight:850;letter-spacing:-.7px}.brand span{color:#78d8bd}.head-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.head-links a{font-size:12px;font-weight:700;color:#d8f3ec;text-decoration:none}.head-links a:hover{text-decoration:underline}.tag{font-weight:750;border:1px solid #748d96;border-radius:50px;padding:6px 12px;font-size:11px;white-space:nowrap}.hero{display:flex;justify-content:space-between;align-items:start;gap:24px;margin-bottom:19px}.hero h1{font-size:clamp(25px,3vw,38px);line-height:1.17;margin:6px 0 9px;letter-spacing:-.9px}.hero p{margin:0;color:var(--muted);max-width:760px}.eyebrow{color:#9b632c;text-transform:uppercase;font-size:11px;letter-spacing:.14em;font-weight:850}.label-demo{background:#fff5e6;border:1px solid #eddbba;border-left:4px solid #c28c47;border-radius:12px;padding:13px 16px;margin-bottom:19px;color:#795329;font-size:13px}.split{display:grid;grid-template-columns:330px minmax(0,1fr);gap:17px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 8px 22px #14324308}.panelhead{padding:20px 21px 10px}.panelhead h2{font-size:18px;line-height:1.3;margin:0 0 5px;letter-spacing:-.25px}.panelhead p{margin:0;font-size:12px;color:var(--muted)}.settings{padding:11px 21px 20px}.field{display:block;margin:4px 0 18px}.field span,.field label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}.number{background:white;border:1px solid #b9d1d1;border-radius:10px;padding:11px 12px;min-height:46px;color:var(--ink);width:100%;font-weight:800}.number.capacity{font-size:25px;border:2px solid #6db6aa}.note{font-size:11px;color:var(--muted);margin-top:5px}.setting-row{padding:12px 0;border-top:1px solid var(--line)}.setting-row:first-of-type{border-top:0}.productname{font-weight:800;font-size:13px;margin-bottom:9px}.controls{display:grid;grid-template-columns:1.15fr .85fr;gap:8px}.controls label{font-size:11px;color:var(--muted);font-weight:700}.controls select,.controls input{margin-top:5px;padding:9px 8px;border:1px solid #cbdcde;border-radius:8px;width:100%;background:white;min-height:41px;color:var(--ink)}.toggle{display:flex;gap:10px;align-items:flex-start;margin:16px 0 4px;font-size:13px;line-height:1.45}.toggle input{margin-top:4px;width:18px;height:18px;accent-color:var(--teal)}.buttonline{margin-top:17px;display:flex;gap:9px;flex-wrap:wrap}.button{border-radius:10px;background:var(--ink);color:white;border:1px solid var(--ink);padding:10px 14px;font-weight:750}.button.alt{background:#fff;color:var(--ink);border-color:#cbd9dd}.results{padding:0 20px 20px}.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 15px}.kpi{border:1px solid var(--line);background:#f9fbfb;border-radius:13px;padding:15px 13px}.kpi .label{color:var(--muted);font-size:11px;font-weight:800}.kpi .value{font-size:28px;font-weight:900;margin-top:4px;font-variant-numeric:tabular-nums}.kpi .foot{font-size:10px;color:var(--muted)}.kpi.deferred .value{color:var(--gold)}.kpi.now .value{color:var(--teal)}.alloc-bar{display:flex;background:#f4e5ce;border-radius:99px;height:10px;overflow:hidden;margin:2px 0 12px}.alloc-bar span{background:var(--teal);border-radius:99px;transition:width .2s}.explain{background:#edf8f4;border-radius:12px;border:1px solid #d6ece2;padding:13px 15px;font-size:12px;color:#35645a;margin:12px 0 17px}.explain strong{color:#19584e}.shortage{background:#fff4e6;border:1px solid #edd8b9;color:#805b32;border-radius:12px;padding:11px 13px;font-size:12px;margin-bottom:15px}.recommendation{display:flex;justify-content:space-between;align-items:center;margin:18px 0 9px}.recommendation h3{margin:0;font-size:15px}.recitem{border:1px solid var(--line);border-radius:13px;margin:9px 0;padding:14px}.rec-top{display:flex;align-items:start;gap:10px;justify-content:space-between}.rec-top h4{margin:0;font-size:14px}.rec-top .sub{font-size:11px;color:var(--muted);margin-top:4px}.pill{white-space:nowrap;font-size:10px;font-weight:850;border-radius:99px;padding:5px 8px;background:#e9f7f1;color:#147363}.pill.medium{background:#eff3f8;color:#51677a}.pill.low{background:#fff4e6;color:#a06b2e}.quantities{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 8px}.quantity{background:#f5f9f8;padding:9px;border-radius:9px}.quantity span{display:block;font-size:10px;color:var(--muted)}.quantity b{font-size:20px}.quantity.later{background:#fff6e9}.quantity.later b{color:#a46a29}.line{height:7px;background:#f1e4d3;border-radius:99px;overflow:hidden;margin:11px 0 8px}.line span{display:block;background:var(--teal);height:100%;border-radius:99px}.why{font-size:11px;color:var(--muted)}.sectionfooter{font-size:12px;border-top:1px solid var(--line);margin-top:15px;padding-top:14px;color:var(--muted)}.footer-note{margin-top:20px;padding:17px 19px;background:#fff;border:1px solid var(--line);border-radius:15px}.footer-note h3{font-size:15px;margin:0 0 8px}.footer-note p{font-size:13px;color:var(--muted);margin:0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:920px){.split{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}.settings>.field,.settings>.toggle,.settings>.buttonline{grid-column:1/-1}.setting-row{border-top:1px solid var(--line)}}
+@media(max-width:580px){.shell{padding:18px 13px 32px}.head{padding:14px 13px}.hero h1{font-size:29px}.panelhead{padding:18px 15px 9px}.settings{display:block;padding:10px 15px 17px}.results{padding:0 12px 16px}.kpis{gap:6px}.kpi{padding:11px 7px}.kpi .value{font-size:24px}.kpi .label{font-size:10px}.recitem{padding:12px}.quantity{padding:8px 6px}.quantity b{font-size:18px}.quantities{gap:5px}.tag{font-size:10px;padding:5px 8px}}
+</style>
+</head>
+<body>
+<header><div class="head"><div class="brand">Doce<span>Fluxo</span> <span style="color:#a8c2c8;font-size:12px;font-weight:500">/ Plano B</span></div><div class="head-links"><a href="index.html">← Painel principal</a><div class="tag">EXPERIMENTO • 29/10/2026</div></div></div></header>
+<main class="shell">
+  <div class="hero"><div><div class="eyebrow">Decisão antes da produção</div><h1>Não vai dar tempo de fazer tudo. E agora?</h1><p>Simule a capacidade da fábrica e receba uma sugestão transparente do que produzir primeiro e do que adiar. Você continua no controle.</p></div></div>
+  <div class="label-demo"><strong>Simulação 100% fictícia.</strong> Os produtos são reais, mas os volumes (360 unidades), prioridades, tempos por lote e capacidade foram inventados para demonstrar a ideia. Nenhuma sugestão altera o planejamento nem os apontamentos do DoceFluxo.</div>
+  <div class="split">
+    <section class="panel" aria-labelledby="scenarioTitle"><div class="panelhead"><h2 id="scenarioTitle">1. Ajuste o cenário</h2><p>Imagine apenas uma linha de produção e lotes de 10 unidades.</p></div><div class="settings">
+       <label class="field" for="capacity"><span>Tempo disponível hoje (minutos)</span><input class="number capacity" id="capacity" type="number" inputmode="numeric" min="0" max="3000" step="10" value="240"><div class="note">Exemplo: 240 minutos = 4 horas efetivas de produção.</div></label>
+       <div id="productInputs"></div>
+       <label class="toggle"><input id="coverage" type="checkbox" checked><span><strong>Proteger variedade:</strong> tentar reservar 1 lote de 10 unidades para cada produto antes de priorizar o restante. <em>É uma hipótese, não uma regra validada.</em></span></label>
+       <div class="buttonline"><button class="button alt" id="restore" type="button">Restaurar cenário fictício</button></div>
+    </div></section>
+    <section class="panel" aria-labelledby="resultTitle"><div class="panelhead"><h2 id="resultTitle">2. Sugestão para a gerente</h2><p>Uma recomendação editável, nunca uma programação aprovada automaticamente.</p></div><div class="results">
+      <div class="kpis" aria-live="polite"><div class="kpi"><div class="label">Meta do dia</div><div class="value">360</div><div class="foot">unidades planejadas</div></div><div class="kpi now"><div class="label">Sugestão: fazer</div><div id="nowTotal" class="value">—</div><div class="foot">unidades</div></div><div class="kpi deferred"><div class="label">Sugestão: adiar</div><div id="laterTotal" class="value">—</div><div class="foot">unidades</div></div></div>
+      <div class="alloc-bar" role="img" aria-label="Proporção de unidades sugeridas para produção agora"><span id="progressWidth" style="width:0%"></span></div>
+      <div class="explain"><strong>Critério inventado e explicável:</strong> quando há tempo, reservar uma pequena cobertura de cada doce; depois, atender primeiro o produto mais urgente. Se a urgência empatar, favorecer o lote que exige menos minutos. Considerar sempre lotes inteiros de 10.</div>
+      <div id="summary" class="shortage" aria-live="polite"></div><div class="recommendation"><h3>Ordem e quantidades sugeridas</h3><span style="color:var(--muted);font-size:11px">Agora x depois</span></div>
+      <div id="recommendations" aria-live="polite"></div>
+      <div class="sectionfooter">A recomendação não considera estoque das lojas, vendas futuras, validade, equipes, equipamentos ou preparação entre receitas. Antes de usar de verdade, essas regras precisam ser validadas com a gerente.</div>
+    </div></section>
+  </div>
+  <div class="footer-note"><h3>O que eu perguntaria à gerente antes de confiar na sugestão?</h3><p>Quais lojas ou produtos correm risco de faltar? Qual é o tempo real de cada receita/lote? Existe quantidade mínima por loja? Quais doces vencem mais rápido? Há equipamentos compartilhados, equipes diferentes ou produtos que devem ser feitos juntos? Quem aprova o que será adiado?</p></div>
+</main>
+<script>
+(()=>{
+'use strict';
+const INITIAL=[
+ {id:'bombom',name:'Bombons de Morango',target:120,urgency:3,mins:20},
+ {id:'puxa',name:'Puxa Puxa de Pistache',target:80,urgency:3,mins:15},
+ {id:'cocada',name:'Cocadas Proteicas',target:60,urgency:2,mins:10},
+ {id:'cookies',name:'Cookies and Cream',target:100,urgency:1,mins:12}
+];
+const BATCH=10;
+const $=id=>document.getElementById(id);
+let scenario=INITIAL.map(p=>({...p}));
+let capacity=240;
+let coverage=true;
+const labels={3:'Alta',2:'Média',1:'Baixa'};
+const escapeHtml=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const format=n=>new Intl.NumberFormat('pt-BR').format(n);
+function inputMarkup(){
+ $('productInputs').innerHTML=scenario.map(p=>`<div class="setting-row"><div class="productname">${escapeHtml(p.name)} · meta ${p.target}</div><div class="controls"><label>Urgência<select data-product="${p.id}" data-field="urgency" aria-label="Urgência de ${escapeHtml(p.name)}"><option value="3" ${p.urgency===3?'selected':''}>Alta</option><option value="2" ${p.urgency===2?'selected':''}>Média</option><option value="1" ${p.urgency===1?'selected':''}>Baixa</option></select></label><label>Min por 10 unidades<input type="number" inputmode="numeric" min="1" max="300" step="1" value="${p.mins}" data-product="${p.id}" data-field="mins" aria-label="Minutos por lote de ${escapeHtml(p.name)}"></label></div></div>`).join('');
+}
+function order(a,b){return b.urgency-a.urgency||a.mins-b.mins||a.name.localeCompare(b.name,'pt-BR');}
+function calculate(){
+ const items=scenario.map(p=>({...p,batches:0,needed:p.target/BATCH}));
+ const ranked=[...items].sort(order);
+ const neededMinutes=items.reduce((sum,p)=>sum+p.needed*p.mins,0);
+ let remaining=capacity;
+ const base=items.reduce((sum,p)=>sum+p.mins,0);
+ const reserve=coverage&&remaining>=base;
+ if(reserve){items.forEach(p=>p.batches++);remaining-=base;}
+ for(const p of ranked){const missing=p.needed-p.batches;const count=Math.min(missing,Math.floor(remaining/p.mins));p.batches+=count;remaining-=count*p.mins;}
+ const made=items.reduce((sum,p)=>sum+p.batches*BATCH,0);
+ const total=items.reduce((sum,p)=>sum+p.target,0);
+ const spent=capacity-remaining;
+ return {items,ranked,made,total,spent,remaining,neededMinutes,base,reserve};
+}
+function show(){
+ const result=calculate();
+ $('nowTotal').textContent=format(result.made);
+ $('laterTotal').textContent=format(result.total-result.made);
+ $('progressWidth').style.width=(result.total?100*result.made/result.total:0)+'%';
+ const shortage=result.neededMinutes>capacity;
+ const coverageMessage=coverage&&!result.reserve?` A capacidade não cobre nem um lote de cada produto (${result.base} min); a reserva foi desativada apenas nesta simulação.`:'';
+ $('summary').textContent=(shortage?`Capacidade curta: ${format(capacity)} min disponíveis para ${format(result.neededMinutes)} min estimados. `:`Capacidade suficiente: ${format(capacity)} min disponíveis para ${format(result.neededMinutes)} min estimados. `)+`Sugestão: usar ${format(result.spent)} min, deixando ${format(result.remaining)} min não alocáveis em lotes inteiros, ou livres. `+coverageMessage;
+ $('recommendations').innerHTML=result.ranked.map((p,i)=>{
+  const now=p.batches*BATCH,later=p.target-now,percent=Math.round(now/p.target*100);
+  const why=now===0?'Sem lote alocado com a capacidade atual.':later===0?'Meta inteira cabe no cenário proposto.':'Parcial: o restante fica para decisão da gerente.';
+  return `<article class="recitem" aria-label="${escapeHtml(p.name)}"><div class="rec-top"><div><h4>${i+1}º · ${escapeHtml(p.name)}</h4><div class="sub">${p.mins} min / lote de 10 unidades · ${p.batches} lote(s) sugerido(s)</div></div><span class="pill ${p.urgency===3?'':p.urgency===2?'medium':'low'}">${labels[p.urgency]}</span></div><div class="quantities"><div class="quantity"><span>Meta</span><b>${format(p.target)}</b></div><div class="quantity"><span>Fazer agora</span><b>${format(now)}</b></div><div class="quantity later"><span>Adiar</span><b>${format(later)}</b></div></div><div class="line"><span style="width:${percent}%"></span></div><div class="why">${why}</div></article>`;
+ }).join('');
+}
+function validInt(value,min,max){const v=Number(value);return value!==''&&Number.isSafeInteger(v)&&v>=min&&v<=max?v:null;}
+$('productInputs').addEventListener('change',e=>{
+ const target=e.target.closest('[data-product]');if(!target)return;
+ const p=scenario.find(x=>x.id===target.dataset.product);if(!p)return;
+ const field=target.dataset.field;
+ if(field==='urgency'){const v=validInt(target.value,1,3);if(v!==null)p.urgency=v;}
+ if(field==='mins'){const v=validInt(target.value,1,300);if(v!==null)p.mins=v;else target.value=p.mins;}
+ show();
+});
+$('capacity').addEventListener('input',e=>{const v=validInt(e.target.value,0,3000);if(v!==null){capacity=v;show();}});
+$('capacity').addEventListener('change',e=>{const v=validInt(e.target.value,0,3000);if(v===null)e.target.value=capacity;else{capacity=v;show();}});
+$('coverage').addEventListener('change',e=>{coverage=e.target.checked;show();});
+$('restore').addEventListener('click',()=>{scenario=INITIAL.map(p=>({...p}));capacity=240;coverage=true;$('capacity').value=240;$('coverage').checked=true;inputMarkup();show();});
+inputMarkup();show();
+})();
+</script>
+</body>
+</html>
