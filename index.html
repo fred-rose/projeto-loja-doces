@@ -81,14 +81,15 @@ function render(live=false){
  const cards=view.length?view.map(p=>{
    const st=state(p),balance=gap(p),storeSummary=STORES.map(([id])=>id+' '+fmt(p.alloc[id]||0)).join(' \u00b7 ');
    const reasonSelect=REASONS.map(r=>'<option value="'+esc(r)+'" '+(r===p.reason?'selected':'')+'>'+esc(r||'Selecione o motivo...')+'</option>').join('');
-   const percent=Math.min(100,Math.round(100*(p.actual??0)/p.target));
+   const percent=Math.min(100,Math.round(100*(p.actual??0)/p.target)),reached=p.actual!==null&&p.actual>=p.target;
    const id=esc(p.id),detailsId='details-'+id,planId='plan-'+id;
    return '<article class="item '+(st==='unknown'||st==='partial'?'attention':'finished')+'" data-id="'+id+'" aria-label="'+esc(p.name)+'">'+
    '<div class="card-top"><h3 class="product">'+esc(p.name)+'</h3><span class="status '+st+'">'+stateLabel[st]+'</span></div>'+
    '<div class="card-metrics"><span>Meta <strong class="num">'+fmt(p.target)+'</strong></span><span>Saldo <span class="balance '+(balance===null?'muted':balance===0?'none':'')+'">'+(balance===null?'A conferir':fmt(balance))+'</span></span></div>'+
    '<progress class="progress" max="100" value="'+percent+'" aria-label="Progresso de '+esc(p.name)+'"></progress><p class="progress-caption">'+(p.actual===null?'Embalados ainda não informados':fmt(p.actual)+' de '+fmt(p.target)+' embalados · '+percent+'%')+'</p>'+
    '<label class="pack-label" for="actual-'+id+'">Total embalado no dia</label><div class="pack-entry"><input id="actual-'+id+'" data-field="actual" data-id="'+id+'" class="number-input" type="number" inputmode="numeric" min="0" max="1000000" step="1" value="'+(p.actual===null?'':p.actual)+'" placeholder="—" aria-describedby="error-'+id+'" aria-label="Quantidade embalada de '+esc(p.name)+'"><span>un.</span></div>'+
-   '<div class="quick-actions"><button class="btn" type="button" data-action="plus10" data-id="'+id+'" aria-label="Somar 10 embalados de '+esc(p.name)+'">+10</button><button class="btn" type="button" data-action="plus25" data-id="'+id+'" aria-label="Somar 25 embalados de '+esc(p.name)+'">+25</button><button class="btn primary complete" type="button" data-action="complete" data-id="'+id+'" '+(p.actual!==null&&p.actual>=p.target?'disabled':'')+'>Concluir meta</button></div>'+
+   '<p class="production-limit detail-help" '+(p.produced===null?'hidden':'')+'>'+(p.produced===null?'':'Produção informada: '+fmt(p.produced)+' un. Você pode registrar até '+fmt(p.produced)+' embalados.')+'</p>'+
+   '<div class="quick-actions"><button class="btn" type="button" data-action="plus10" data-id="'+id+'" '+(reached?'disabled':'')+' aria-label="Somar 10 embalados de '+esc(p.name)+'">+10</button><button class="btn" type="button" data-action="plus25" data-id="'+id+'" '+(reached?'disabled':'')+' aria-label="Somar 25 embalados de '+esc(p.name)+'">+25</button><button class="btn primary complete" type="button" data-action="complete" data-id="'+id+'" '+(reached?'disabled':'')+'>Concluir meta</button></div>'+
    '<p class="field-guidance" id="error-'+id+'" role="alert">'+esc(fieldErrors.get(p.id)||'')+'</p>'+
    (st==='partial'?'<div class="reasoncol"><label for="reason-'+id+'">O que faltou? <span class="small">(opcional)</span></label><select id="reason-'+id+'" class="reason" data-field="reason" data-id="'+id+'" aria-label="Motivo do desvio de '+esc(p.name)+'">'+reasonSelect+'</select></div>':'')+
    '<details class="card-details" id="'+detailsId+'" '+(openDetails.has(detailsId)?'open':'')+'><summary>Produção e observações</summary><label class="detail-label" for="produced-'+id+'">Total produzido no dia</label><input id="produced-'+id+'" data-field="produced" data-id="'+id+'" class="number-input" type="number" inputmode="numeric" min="0" max="1000000" step="1" value="'+(p.produced===null?'':p.produced)+'" placeholder="Não informado" aria-describedby="error-'+id+'" aria-label="Quantidade produzida de '+esc(p.name)+'"><p class="detail-help">Produção e embalagem são registros separados da fábrica.</p><button class="note-btn" data-action="note" data-id="'+id+'" type="button">'+(p.note?'Ver / editar nota':'Adicionar nota')+'</button>'+
@@ -102,7 +103,9 @@ function render(live=false){
    current.className=next.className;
    for(const selector of ['.status','.balance','.progress-caption','.field-guidance']){const from=next.querySelector(selector),to=current.querySelector(selector);to.textContent=from.textContent;to.className=from.className;}
    current.querySelector('progress').value=next.querySelector('progress').value;
-   current.querySelector('[data-action="complete"]').disabled=next.querySelector('[data-action="complete"]').disabled;
+   for(const action of ['plus10','plus25','complete'])current.querySelector('[data-action="'+action+'"]').disabled=next.querySelector('[data-action="'+action+'"]').disabled;
+   current.querySelector('.production-limit').textContent=next.querySelector('.production-limit').textContent;
+   current.querySelector('.production-limit').hidden=next.querySelector('.production-limit').hidden;
    const reason=next.querySelector('.reasoncol'),oldReason=current.querySelector('.reasoncol');
    if(reason){if(oldReason)oldReason.replaceWith(reason);else current.insertBefore(reason,current.querySelector('.card-details'));}else oldReason?.remove();
   }
@@ -125,11 +128,11 @@ function editField(id,field,value,live=false){
  if(field==='actual'||field==='produced'){
   const raw=String(value).trim();next=raw===''?null:Number(raw);
   if(next!==null&&!clamp(next))return invalid('Use um número inteiro entre 0 e 1.000.000.');
-  if(field==='actual'&&next!==null&&p.produced!==null&&next>p.produced)return invalid('Há '+fmt(p.produced)+' produzidos informados. Embalados não podem superar esse total. Confira em “Produção e observações”.');
+  if(field==='actual'&&next!==null&&p.produced!==null&&next>p.produced)return invalid('Não registrado. O limite é '+fmt(p.produced)+' embalados, conforme a produção informada. Se esse total mudou, confira “Produção e observações”.');
   if(field==='produced'&&next!==null&&p.actual!==null&&next<p.actual)return invalid('Já há '+fmt(p.actual)+' embalados. O produzido não pode ser menor. Confira os dois registros.');
  }else if(field==='reason'){next=REASONS.includes(value)?value:'';}else if(field==='note'){next=String(value).slice(0,280);}else return false;
- fieldErrors.delete(id);
- if(p[field]===next){const el=document.getElementById('error-'+id);if(el)el.textContent='';return true;}
+ if(field==='actual'||field==='produced'){fieldErrors.delete(id);const el=document.getElementById('error-'+id);if(el)el.textContent='';}
+ if(p[field]===next)return true;
  p[field]=next;if(field==='actual'&&(next===null||next>=p.target))p.reason='';
  save();if(field!=='note')render(live);return true;
 }
