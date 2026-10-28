@@ -2,6 +2,18 @@
 
 Protótipo funcional e **offline** para acompanhar metas diárias da fábrica de doces que abastece quatro lojas: Asa Norte, Noroeste, Gilberto Salomão e Sudoeste.
 
+## UX 2.0 — apontamento rápido
+
+O trabalho diário acontece nos cartões: digite o **total embalado no dia**, toque em **+10** ou **+25**, ou use **Concluir meta**. Os valores válidos são salvos ao digitar, sem botão Salvar. A conclusão preenche somente embalados com a meta; não presume produção e não reduz um excedente já registrado.
+
+Cada cartão mostra meta, embalados, saldo, progresso e situação por texto e cor. Produtos sem apontamento ou pendentes têm destaque. O motivo opcional aparece somente na pendência apurada. Produção e observações ficam recolhidas; metas/lojas, CSV e simulação ficam em seções secundárias. Os botões principais têm pelo menos 50 px de altura.
+
+**Dados preservados:** contrato versão 2 e chave `docefluxo-central-demo-v2` mantidos. Vazio continua não informado, zero é válido e nenhuma ação de embalagem inventa produzidos. Se produção estiver informada, qualquer tentativa de embalar acima dela é bloqueada com orientação no próprio cartão. A persistência continua local à origem do navegador.
+
+O campo ativo não é recriado durante a digitação: saldo, progresso e situação atualizam sem mover o cursor. Notas também salvam ao digitar. Falha de armazenamento mantém os dados na memória e exibe aviso para exportar o CSV.
+
+**Verificação UX 2.0:** `node tests/ux.cjs` passou em 56 verificações; `node tests/mvp.cjs` passou em 44 verificações; `node verificar.cjs` passou com o roteiro HTTP complementar. Foram conferidas oito larguras entre 320 e 1440 px. Nenhuma dependência de execução foi adicionada. Playwright e Edge são usados somente nos testes.
+
 ## Como executar (Windows)
 
 1. Extraia os arquivos **diretamente** na pasta `C:\Users\patai\OneDrive\Documentos\Projeto Loja Doces`.
@@ -73,9 +85,11 @@ Para repetir, disponibilize `playwright` no ambiente de desenvolvimento (não é
 
 Também foi executado `verificar.cjs` com testes de exclusão, simulação e seis larguras (incluindo 1280 px). Esse roteiro usa `@playwright/test`, podendo receber seu caminho absoluto em `PLAYWRIGHT_MODULE`. Capturas ficam em `test-results/`, ignorada pelo Git. Falhas de salvamento local deixam um aviso permanente na aplicação; exporte CSV antes de fechar nesse caso. Relatório completo em `RELATORIO_ENTREGA.md`.
 
-## Publicação no GitHub Pages
+## Publicação no GitHub Pages — procedimento e histórico
 
-O ambiente de preparação bloqueia conexões da CLI com `api.github.com` e escrita nos metadados `.git`. `git init -b main` criou a estrutura local, mas configuração e staging falharam por permissão. O conector GitHub identificou `fred-rose`, mas não oferece criação de repositório nem configuração do Pages. **Commit, repositório remoto, push e publicação não foram concluídos nem validados. Nenhuma URL pública foi confirmada.**
+O repositório existente é `https://github.com/fred-rose/projeto-loja-doces`, vinculado a `origin`, na branch `main`. O ambiente de edição bloqueia a rede da CLI e a escrita em `.git`. A tentativa pelo conector também falhou: GitHub 403, `Resource not accessible by integration`, ao criar a árvore do commit. **A UX 2.0 não foi enviada nem teve deploy validado nesta execução.** O procedimento abaixo conclui pelo terminal local com acesso e permissões. A atualização da branch não comprova o deploy: é necessário verificar o build do commit e a página pública.
+
+URL a verificar: `https://fred-rose.github.io/projeto-loja-doces/`. O resultado efetivamente confirmado é informado na entrega; não presumir sucesso apenas pelo endereço.
 
 Em um terminal PowerShell normal, nesta pasta:
 

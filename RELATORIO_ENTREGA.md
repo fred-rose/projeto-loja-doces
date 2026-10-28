@@ -1,4 +1,31 @@
-# Entrega DoceFluxo — 28/10/2026
+# Entrega DoceFluxo UX 2.0 — 28/10/2026
+
+## Atualização UX 2.0
+
+- `index.html`: cartões responsivos com meta, total embalado, saldo e progresso; +10, +25 e Concluir meta; salvamento imediato sem recriar o campo ativo; motivos condicionais e detalhes recolhidos.
+- `tests/ux.cjs`: 56 verificações de atalhos, limite de produção, digitação contínua, persistência sem blur, dados v2 antigos, filtros e alvos de toque em oito larguras de 320 a 1440 px.
+- `tests/mvp.cjs`: atualizado para áreas recolhidas; 44 verificações de regressão passaram.
+- `verificar.cjs`: atualizado para cartões e áreas recolhidas; roteiro HTTP complementar passou, incluindo CSV, cálculos, exclusão, simulação e falha de armazenamento.
+- `README.md`, `DECISOES_E_VALIDACOES.md` e `PUBLICAR.ps1`: orientação e publicação atualizadas. Originais preservados, nenhuma dependência de execução adicionada.
+
+Contrato v2 e chave `docefluxo-central-demo-v2` preservados. Embalagem não preenche produção. Quantidade desconhecida continua nula; zero continua válido. Totais permanecem centrais, sem duplicação pelas lojas. Capturas locais em `artifacts/ux2-390.png` e `artifacts/ux2-1440.png`.
+
+Repositório existente confirmado: `https://github.com/fred-rose/projeto-loja-doces`, origin/main, base `79b16da`. A escrita local em `.git` e a rede da CLI estão bloqueadas. A tentativa de criar a árvore do commit pelo conector falhou com GitHub 403, `Resource not accessible by integration`. Nenhum commit UX 2.0 foi criado ou enviado. A URL `https://fred-rose.github.io/projeto-loja-doces/` também não pôde ser acessada pela ferramenta web; **deploy da UX 2.0 e validação pública pendentes**. O código remoto não foi alterado.
+
+Se a atualização ou validação remota não for possível, executar em PowerShell local com rede e escrita, na pasta oficial:
+
+```powershell
+gh auth status
+# Somente se necessário:
+gh auth login -h github.com --web
+powershell -NoProfile -ExecutionPolicy Bypass -File .\PUBLICAR.ps1
+```
+
+O script inclui todos os arquivos da UX 2.0, cria commit, envia main sem force e aguarda o build/HTTP. Se o conector já publicou esta versão, sincronize o Git local antes de tentar um novo push; não use force nem descarte as alterações locais.
+
+## Histórico da preparação inicial
+
+As seções abaixo registram o estado anterior à UX 2.0; os bloqueios e URLs daquela preparação não descrevem automaticamente a situação atual do repositório.
 
 ## Arquivos preparados
 

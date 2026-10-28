@@ -11,13 +11,14 @@ try {
     Check-Exit 'autenticacao gh (execute gh auth login -h github.com --web)'
     $account = gh api user --jq .login
     Check-Exit 'identificar conta'
+    if ($account -ne 'fred-rose') { throw 'Autentique como fred-rose para publicar este projeto. Nenhum repositorio foi alterado.' }
     $accountId = gh api user --jq .id
     Check-Exit 'identificar ID para email privado do commit'
     $repo = "$account/projeto-loja-doces"
     $branch = git branch --show-current
     Check-Exit 'consultar branch local'
     if ($branch -ne 'main') { throw 'A branch atual deve ser main. Nenhuma branch foi alterada.' }
-    $manifest = @('.gitignore', '.nojekyll', 'index.html', 'README.md', 'INICIAR.cmd', 'DECISOES_E_VALIDACOES.md', 'PUBLICAR.ps1', 'RELATORIO_ENTREGA.md', 'tests/mvp.cjs')
+    $manifest = @('.gitignore', '.nojekyll', 'index.html', 'README.md', 'INICIAR.cmd', 'DECISOES_E_VALIDACOES.md', 'PUBLICAR.ps1', 'RELATORIO_ENTREGA.md', 'tests/mvp.cjs', 'tests/ux.cjs')
     if (Test-Path -LiteralPath 'verificar.cjs') { $manifest += 'verificar.cjs' }
     $staged = @(git diff --cached --name-only)
     Check-Exit 'verificar arquivos ja preparados'
@@ -28,7 +29,7 @@ try {
     Check-Exit 'preparar somente arquivos necessarios'
     git diff --cached --quiet
     if ($LASTEXITCODE -eq 1) {
-        git -c user.name=DoceFluxo -c "user.email=$accountId+$account@users.noreply.github.com" commit -m 'Prepara MVP DoceFluxo com apontamentos centrais, filtros, CSV e testes'
+        git -c user.name=DoceFluxo -c "user.email=$accountId+$account@users.noreply.github.com" commit -m 'Simplifica apontamento com cartões e ações rápidas no DoceFluxo UX 2.0'
         Check-Exit 'criar commit local'
     } elseif ($LASTEXITCODE -ne 0) { throw 'Falha ao verificar alteracoes para commit.' }
     $remotes = @(git remote)
@@ -86,7 +87,7 @@ try {
             if ($build.status -eq 'built' -and $build.commit -eq $commit) {
                 try {
                     $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 20
-                    if ($response.StatusCode -eq 200 -and $response.Content -match 'DoceFluxo' -and $response.Content -match 'storeFilter' -and $response.Content -match 'kpiProduced') {
+                    if ($response.StatusCode -eq 200 -and $response.Content -match 'DoceFluxo' -and $response.Content -match 'product-grid' -and $response.Content -match 'data-action="plus10"' -and $response.Content -match 'data-action="complete"') {
                         Write-Host "PUBLICADO E VALIDADO: $url (commit $commit)"
                         exit 0
                     }

@@ -3,6 +3,17 @@
 ## Necessidade atendida
 A gerente de produção precisa verificar diariamente se as metas da fábrica central foram atingidas e entender o que ficou por fazer.
 
+## UX 2.0 — operação em cartões
+
+- Embalados é o total acumulado do dia. +10/+25 somam ao total atual; vazio inicia a soma a partir de zero, sem presumir produção.
+- Concluir meta registra somente embalados igual à meta. Se o total já atingiu ou superou a meta, a ação fica desabilitada para não diminuir apontamentos.
+- Produzidos, notas, edição de metas, distribuição, CSV e simulação continuam disponíveis em áreas recolhidas.
+- Motivo aparece somente quando embalados está preenchido e abaixo da meta. É opcional; são mantidas as regras existentes de limpeza do motivo ao concluir ou apagar o apontamento.
+- Salvamento de valores válidos e notas ocorre ao digitar. Nenhuma mudança de contrato ou chave localStorage; migração de produzido ausente continua usando nulo.
+- Ao digitar, o campo e o cursor permanecem no lugar; somente os indicadores do cartão são atualizados. Os cartões mantêm sua ordem para evitar que o produto mude de posição durante o trabalho. O filtro de situação é aplicado ao escolher o filtro ou atualizar a lista; a digitação mantém o cartão ativo visível até a próxima atualização.
+- A validação entre produzidos e embalados se aplica igualmente a digitação e atalhos. Não completar a produção automaticamente para satisfazê-la.
+- Testes incluem dados v2 anteriores, toques consecutivos, recarregamento sem sair do campo, CSV e ausência de overflow entre 320 e 1440 px. Uso real com uma mão e vocabulário devem ser validados com os funcionários.
+
 ## Decisões
 - Centralizar o apontamento por **produto, data e fábrica**, sem confundir distribuição planejada para lojas com expedição efetiva.
 - Não transformar vendas do Takeat em suposta produção real.

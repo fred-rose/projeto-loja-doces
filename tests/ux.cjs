@@ -1,0 +1,82 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {pathToFileURL}=require('node:url');
+const path=require('node:path');
+const KEY='docefluxo-central-demo-v2';
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true});
+ let count=0;const check=(value,expected,label)=>{assert.deepEqual(value,expected,label);count++;console.log('OK: '+label);};
+ try{
+  const context=await browser.newContext({viewport:{width:390,height:844}});
+  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const url=process.env.TEST_URL||pathToFileURL(path.resolve('index.html')).href;
+  await page.goto(url);
+  const row=page.locator('.item').filter({hasText:'Bombons de Morango'});
+  const actual=()=>row.locator('[data-field="actual"]'),produced=()=>row.locator('[data-field="produced"]');
+  const saved=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),KEY);
+  const plus=n=>row.locator(`[data-action="plus${n}"]`).click();
+  check(await row.locator('[data-field="reason"]').count(),0,'motivo não aparece antes do apontamento');
+  check(await produced().isVisible(),false,'produção começa recolhida');
+  check(await page.locator('#export').isVisible(),false,'CSV fora do fluxo principal');
+  check(await row.locator('[data-action="edit"]').isVisible(),false,'edição de metas recolhida');
+  await plus(10);check(await actual().inputValue(),'10','+10 começa em 10 quando vazio');
+  check((await saved()).items[0].produced,null,'+10 não inventa produção');
+  check(await row.locator('[data-field="reason"]').isVisible(),true,'motivo aparece na pendência apurada');
+  await plus(25);await plus(25);check(await actual().inputValue(),'60','+25 repetido acumula sem perder cliques');
+  check(await row.locator('progress').getAttribute('value'),'50','progresso 60 de 120 = 50%');
+  await row.locator('[data-field="reason"]').selectOption('Falta de insumos');
+  await actual().fill('85');
+  check((await saved()).items[0].actual,85,'digitação salva imediatamente, antes de sair do campo');
+  await page.reload();check(await actual().inputValue(),'85','atalhos e digitação persistem ao recarregar');
+  check(await row.locator('[data-field="reason"]').inputValue(),'Falta de insumos','motivo persiste após recarregar');
+  await row.locator('summary').filter({hasText:'Produção e observações'}).click();await produced().fill('90');
+  await plus(10);check(await actual().inputValue(),'85','+10 respeita produção já informada');
+  check(await row.locator('.field-guidance').textContent(),'Há 90 produzidos informados. Embalados não podem superar esse total. Confira em “Produção e observações”.','limite explica a ação necessária');
+  await row.locator('[data-action="complete"]').click();check(await actual().inputValue(),'85','concluir meta não altera produção insuficiente');
+  check((await saved()).items[0].produced,90,'concluir bloqueado preserva produzido');
+  await produced().fill('120');await row.locator('[data-action="complete"]').click();
+  check(await actual().inputValue(),'120','concluir registra a meta exata');
+  check(await row.locator('.status').textContent(),'Concluído','conclusão tem estado explícito');
+  check(await row.locator('[data-field="reason"]').count(),0,'motivo desaparece quando concluído');
+  check(await row.locator('progress').getAttribute('value'),'100','progresso concluído');
+  check((await saved()).items[0].produced,120,'concluir não modifica produzido');
+  await actual().fill('0');check(await row.locator('.balance').textContent(),'120','zero continua apontamento válido');
+  await actual().fill('');check(await row.locator('.status').textContent(),'Sem apontamento','vazio continua não informado');
+  await produced().fill('');await actual().pressSequentially('105',{delay:40});
+  check(await actual().inputValue(),'105','digitação contínua mantém foco e todos os dígitos');
+  check(await actual().evaluate(el=>el===document.activeElement),true,'foco permanece no campo ao salvar');
+  await plus(25);check(await actual().inputValue(),'130','atalho após digitar funciona no primeiro toque');
+  check(await row.locator('.status').textContent(),'Acima da meta','excesso continua explícito');
+  check(await row.locator('[data-action="complete"]').isDisabled(),true,'concluir não reduz excesso existente');
+  check(await page.locator('#kpiActual').textContent(),'130','embalados somados uma vez na fábrica');
+  check(await page.locator('#kpiOpen').textContent(),'240','excesso não compensa saldo de outros produtos');
+  // Dados anteriores, sem produzido, com zero e nota: manter exatamente os apontamentos.
+  const prior=await saved();delete prior.items[0].produced;prior.items[0].actual=0;prior.items[0].reason='Outro';prior.items[0].note='Nota anterior <teste>';
+  await page.evaluate(({key,data})=>localStorage.setItem(key,JSON.stringify(data)),{key:KEY,data:prior});await page.reload();
+  const after=await saved();check(after.items[0],{...prior.items[0],produced:null},'compatibilidade v2 preserva id, zero, motivo, nota, alocação e meta');
+  check(after.items.slice(1),prior.items.slice(1),'demais apontamentos não são alterados');
+  check(after.version,2,'contrato continua versão 2');
+  await page.locator('#statusFilter').selectOption('partial');check(await page.locator('.item').count(),1,'filtro mostra só pendência apurada');
+  await page.locator('#statusFilter').selectOption('unknown');check(await page.locator('.item').count(),3,'filtro distingue não informados');
+  await page.locator('#statusFilter').selectOption('all');
+  const second=page.locator('.item').filter({hasText:'Puxa Puxa de Pistache'});
+  await second.locator('[data-action="complete"]').click();check((await saved()).items[1].actual,80,'concluir a partir de vazio registra somente embalados');
+  check((await saved()).items[1].produced,null,'concluir sem produzido preserva não informado');
+  await page.locator('#statusFilter').selectOption('done');check(await page.locator('.item').count(),1,'filtro de concluídos funciona');
+  await page.locator('#statusFilter').selectOption('all');
+  await actual().fill('1000000');await plus(25);check((await saved()).items[0].actual,1000000,'atalho respeita o limite de quantidade');
+  await actual().fill('0');
+  // Cartões e controles com todas as áreas abertas, em várias larguras.
+  fs.mkdirSync('artifacts',{recursive:true});
+  for(const width of [320,360,390,650,768,1024,1280,1440]){
+   await page.setViewportSize({width,height:900});
+   check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sem overflow em '+width+'px');
+   const controls=await row.locator('.quick-actions button').evaluateAll(els=>els.map(e=>({height:e.getBoundingClientRect().height,width:e.getBoundingClientRect().width})));
+   check(controls.every(r=>r.height>=48&&r.width>=44),true,'alvos de toque confortáveis em '+width+'px');
+   if([390,1440].includes(width))await page.screenshot({path:`artifacts/ux2-${width}.png`,fullPage:true});
+  }
+  check(errors,[],'sem erros de JavaScript');
+  await context.close();console.log(count+' verificações UX 2.0 passaram.');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
