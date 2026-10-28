@@ -1,0 +1,19 @@
+# Originais preservados localmente; a versão publicada está na raiz.
+docefluxo_para_pasta/
+preparar.cjs
+node_modules/
+test-results/
+playwright-report/
+artifacts/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
+*.csv
+*.zip
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
